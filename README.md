@@ -1,50 +1,69 @@
-# Photo to Anime
-A Tensorflow implementation of AnimeGAN for fast photo animation ! &ensp;&ensp;&ensp;&ensp;  
+# Photo2Anime (AnimeGAN)
 
------
-**Some suggestions:**
-1. since the real photos in the training set are all landscape photos, if you want to stylize the photos with people as the main body, you may as well add at least 3000 photos of people in the training set and retrain to obtain a new model.  
-2. In order to obtain a better face animation effect, when using 2 images as data pairs for training, it is suggested that the faces in the photos and the faces in the anime style data should be consistent in terms of gender as much as possible.  
-3. The generated stylized images will be affected by the overall brightness and tone of the style data, so try not to select the anime images of night as the style data, and it is necessary to make an exposure compensation for the overall style data to promote the consistency of brightness and darkness of the entire style data.  
+TensorFlow implementation of **AnimeGAN** for fast photo-to-anime style transfer. This project trains and runs models that map real photographs to anime-style images, with support for inference, video stylization, and training pipelines.
 
-**News:**   
-&ensp;&ensp;&ensp;&ensp;&ensp;  ***photo2anime-gan2*** has been released and can be accessed [here](https://github.com/codeliveyou/photo2anime-gan2).  
-```yaml
-The improvement directions of AnimeGANv2 mainly include the following 4 points:
+A successor experiment, **photo2anime-gan2**, is available separately: [photo2anime-gan2](https://github.com/codeliveyou/photo2anime-gan2).
+
+## AnimeGANv2 (reference) improvements
+
+Compared to earlier AnimeGAN variants, typical v2-style goals include:
+
+1. Reduced high-frequency artifacts in generated images  
+2. More stable training and closer reproduction of published results  
+3. Fewer parameters in the generator  
+4. Higher-quality style data (e.g. from Blu-ray sources)
+
+## Training notes
+
+- The default training set emphasizes **landscape** photos. For people-centric stylization, consider augmenting with a large set of portrait images (on the order of thousands) and retraining.
+- When pairing photo and anime training images, **matching gender** between faces often improves facial animation quality.
+- Generated tone follows the **style dataset**; avoid predominantly dark anime references unless you compensate with exposure so brightness is consistent across style images.
+
+## Requirements
+
+- Python 3.7  
+- TensorFlow GPU 1.15.0 (example: Ubuntu, RTX 2080 Ti, CUDA 10.0.130, cuDNN 7.6.0)  
+- OpenCV, tqdm, numpy  
+- Standard library: `glob`, `argparse`
+
+Install Python dependencies as appropriate for your CUDA stack.
+
+## Usage
+
+### 1. Inference
+
+```bash
+python test.py --checkpoint_dir checkpoint/generator_Hayao_weight --test_dir dataset/test/real --style_name H
 ```
-&ensp;&ensp; 1. Solve the problem of high-frequency artifacts in the generated image.  
-&ensp;&ensp; 2. It is easy to train and directly achieve the effects in the paper.  
-&ensp;&ensp; 3. Further reduce the number of parameters of the generator network.  
-&ensp;&ensp; 4. Use new high-quality style data, which come from BD movies as much as possible.  
 
-___
+### 2. Video to anime
 
-## Requirements  
-- python 3.7  
-- tensorflow-gpu 1.15.0 (ubuntu, GPU 2080Ti, cuda 10.0.130, cudnn 7.6.0)  
-- opencv  
-- tqdm  
-- numpy  
-- glob  
-- argparse  
-  
-## Usage  
-### 1. Inference  
-  e.g.  `python test.py --checkpoint_dir checkpoint/generator_Hayao_weight --test_dir dataset/test/real --style_name H`
-    
-### 2. Convert video to anime  
-  e.g. `python video2anime.py  --video video/input/a.mp4  --checkpoint_dir  ./checkpoint/generator_Hayao_weight`  
+```bash
+python video2anime.py --video video/input/a.mp4 --checkpoint_dir ./checkpoint/generator_Hayao_weight
+```
 
-#### 3. Do edge_smooth  
-   e.g. `python edge_smooth.py --dataset Hayao --img_size 256`  
-  
-#### 4. Train
-   e.g. `python train.py --dataset Hayao  --epoch 101 --init_epoch 5`  
-  
-#### 5. Extract the weights of the generator  
-   e.g. `python get_generator_ckpt.py --checkpoint_dir  ../checkpoint/AnimeGAN_Hayao_lsgan_300_300_1_1_10  --style_name Hayao`  
+### 3. Edge smoothing
 
-____
-## Acknowledgment  
-This code is based on the [CartoonGAN-Tensorflow](https://github.com/taki0112/CartoonGAN-Tensorflow/blob/master/CartoonGAN.py) and [Anime-Sketch-Coloring-with-Swish-Gated-Residual-UNet](https://github.com/pradeeplam/Anime-Sketch-Coloring-with-Swish-Gated-Residual-UNet). Thanks to the contributors of this project.  
+```bash
+python edge_smooth.py --dataset Hayao --img_size 256
+```
 
+### 4. Train
+
+```bash
+python train.py --dataset Hayao --epoch 101 --init_epoch 5
+```
+
+### 5. Export generator weights
+
+```bash
+python get_generator_ckpt.py --checkpoint_dir ../checkpoint/AnimeGAN_Hayao_lsgan_300_300_1_1_10 --style_name Hayao
+```
+
+## Acknowledgments
+
+Based on ideas and code from [CartoonGAN-Tensorflow](https://github.com/taki0112/CartoonGAN-Tensorflow/blob/master/CartoonGAN.py) and [Anime-Sketch-Coloring-with-Swish-Gated-Residual-UNet](https://github.com/pradeeplam/Anime-Sketch-Coloring-with-Swish-Gated-Residual-UNet). Thanks to the original authors.
+
+## License
+
+See the repository license file if present.
